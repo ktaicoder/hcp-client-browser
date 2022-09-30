@@ -1,0 +1,31 @@
+{
+  "name": "@ktaicoder/hcp-client-browser",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "rimraf build && rollup -c rollup.config.all.js",
+    "build:es": "rimraf build && rollup -c rollup.config.es.js",
+    "build:cjs": "rimraf build && rollup -c rollup.config.cjs.js",
+    "clean": "rimraf build dist",
+    "dist": "rimraf dist && mkdirp dist && yarn build && cp -rf build/cjs/* dist/ && node scripts/dist-package.js"
+  },
+  "peerDependencies": {
+    "rxjs": "^7"
+  },
+  "devDependencies": {
+    "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-node-resolve": "^14.1.0",
+    "@types/node": "^18.7.23",
+    "mkdirp": "^1.0.4",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.79.1",
+    "rollup-plugin-typescript2": "^0.34.0",
+    "rxjs": "^7.5.7",
+    "shelljs": "^0.8.5",
+    "ts-loader": "^9.4.1",
+    "tslib": "^2.4.0",
+    "typescript": "^4.8.4"
+  }
+}
