@@ -18,7 +18,7 @@ $  yarn add @ktaicoder/hcp-client-browser
 async function main() {
     const client = new HcpClient(`ws://127.0.0.1:13997`)
     client.observeConnectionStatus().subscribe((status) => {
-        // "disconnected" | "connecting" | "preparing" | "connected"
+        // "DISCONNECTED" | "CONNECTING" | "PREPARING" | "CONNECTED"
         console.log(`status changed: ${status}`)
     })
 

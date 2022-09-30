@@ -9,7 +9,7 @@ export class HcpClientSocket {
 
     private subscription_: Subscription | null = null;
 
-    private connectionStatus$ = new BehaviorSubject<HcpConnectionStatus>("disconnected");
+    private connectionStatus$ = new BehaviorSubject<HcpConnectionStatus>("DISCONNECTED");
 
     private destroyTrigger$ = new Subject<any>();
 
@@ -19,7 +19,7 @@ export class HcpClientSocket {
 
     constructor(private address: string | URL) {}
 
-    isConnected = (): boolean => this.connectionStatus$.value === "connected";
+    isConnected = (): boolean => this.connectionStatus$.value === "CONNECTED";
 
     observeConnectionStatus = (): Observable<HcpConnectionStatus> => {
         return this.connectionStatus$.asObservable();
@@ -41,12 +41,12 @@ export class HcpClientSocket {
         s.addEventListener("error", this.onError_);
 
         this.webSocket_ = s;
-        this.connectionStatus$.next("connecting");
+        this.connectionStatus$.next("CONNECTING");
         this.subscription_ = this.message$.asObservable().subscribe(this.onReceiveHcpMessage_);
     };
 
     private onOpen_ = (_ev: Event) => {
-        this.connectionStatus$.next("preparing");
+        this.connectionStatus$.next("PREPARING");
         this.send(HcpPacketHelper.createHelloPacket());
     };
 
@@ -74,8 +74,8 @@ export class HcpClientSocket {
         const channelId = msg.channelId();
         const channelMsg = msg.proc();
         if (channelId === "meta" && channelMsg === "welcome") {
-            if (this.connectionStatus$.value === "preparing") {
-                this.connectionStatus$.next("connected");
+            if (this.connectionStatus$.value === "PREPARING") {
+                this.connectionStatus$.next("CONNECTED");
             } else {
                 console.warn("connection status invalid:" + this.connectionStatus$.value);
             }
@@ -122,8 +122,8 @@ export class HcpClientSocket {
         if (DEBUG) console.log("HcpClientSocket.stop()");
         this.destroyTrigger$.next(1); // emit any value
 
-        if (this.connectionStatus$.value !== "disconnected") {
-            this.connectionStatus$.next("disconnected");
+        if (this.connectionStatus$.value !== "DISCONNECTED") {
+            this.connectionStatus$.next("DISCONNECTED");
         }
 
         if (this.subscription_) {

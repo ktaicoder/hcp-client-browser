@@ -8,7 +8,7 @@
     "build:es": "rimraf build && rollup -c rollup.config.es.js",
     "build:cjs": "rimraf build && rollup -c rollup.config.cjs.js",
     "clean": "rimraf build dist",
-    "dist": "rimraf dist && mkdirp dist && yarn build && cp -rf build/cjs/* dist/ && node scripts/dist-package.js"
+    "dist": "rimraf dist && mkdirp dist && yarn build && node scripts/dist-package.js"
   },
   "peerDependencies": {
     "rxjs": "^7"

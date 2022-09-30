@@ -1,4 +1,4 @@
-export type HcpConnectionStatus = "disconnected" | "connecting" | "preparing" | "connected";
+export type HcpConnectionStatus = "DISCONNECTED" | "CONNECTING" | "PREPARING" | "CONNECTED";
 
 let textDecoder: TextDecoder | undefined = undefined;
 

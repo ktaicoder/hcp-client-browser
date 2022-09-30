@@ -1,4 +1,4 @@
-import { filter, firstValueFrom, Observable, Subscription, take, timeout } from "rxjs";
+import { takeUntil, filter, firstValueFrom, Observable, Subscription, take, timeout } from "rxjs";
 import { HcpClientSocket } from "./HcpClientSocket";
 import { HcpConnectionStatus, HcpPacket } from "./types";
 import { HcpPacketHelper } from "./HcpPacketHelper";
@@ -10,6 +10,8 @@ const REQUEST_TIMEOUT = 7000;
 
 export class HcpClient {
     private sock_: HcpClientSocket;
+
+    DEBUG: boolean = false;
 
     private subscription_?: Subscription = undefined;
 
@@ -25,13 +27,13 @@ export class HcpClient {
         await firstValueFrom(
             this.observeConnectionStatus() //
                 .pipe(
-                    filter((it) => it === "connected"),
+                    filter((it) => it === "CONNECTED"),
                     take(1)
                 )
         );
     };
 
-    connect = () => {
+    connect = (cancel$?: Observable<any>) => {
         if (this.sock_.isConnected()) {
             throw new Error("client already started");
         }
@@ -39,15 +41,18 @@ export class HcpClient {
         this.subscription_ = new Subscription();
         this.subscription_.add(s.observeConnectionStatus().subscribe(this.debugConnectionStatus_));
         this.subscription_.add(s.observeHcpMessage().subscribe(this.debugHcpPacket_));
+        if (cancel$) {
+            this.subscription_.add(cancel$.pipe(take(1)).subscribe(this.close));
+        }
         s.start();
     };
 
     private debugConnectionStatus_ = (status: HcpConnectionStatus) => {
-        console.log("HcpClient.debugConnectionStatus_() " + status);
+        if (this.DEBUG) console.log("HcpClient.debugConnectionStatus_() " + status);
     };
 
     private debugHcpPacket_ = (msg: HcpPacket) => {
-        console.log("HcpClient.debugHcpPacket_() " + msg.channelId() + "," + msg.proc());
+        if (this.DEBUG) console.log("HcpClient.debugHcpPacket_() " + msg.channelId() + "," + msg.proc());
     };
 
     requestHwControl = async (hwCmd: string, ...args: unknown[]): Promise<HcpPacket> => {
@@ -105,7 +110,7 @@ export class HcpClient {
     };
 
     close = () => {
-        console.log("HcpClient.close()");
+        if (this.DEBUG) console.log("HcpClient.close()");
         this.sock_.stop();
         this.subscription_?.unsubscribe();
         this.subscription_ = undefined;
